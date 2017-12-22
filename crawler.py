@@ -22,11 +22,15 @@ def crawl():
 
     threads_per_source = 4
 
+    round = 0
+
     #loop indefinetely
     while True:
         count = get_news_source_count(conn)
         offset = 0
         limit = 10
+        round += 1
+        log.info("Crawling round %s.", round)
         while offset <= count:
             papers = []
             sources = get_news_sources(conn, offset, limit)
@@ -57,6 +61,8 @@ def crawl():
                 crawled_urls_size = 0
                 if crawled_urls:
                     crawled_urls_size = len(crawled_urls)
+                else:
+                    crawled_urls = ['']
 
                 log.debug("For newspaper %s %s articles already cralwed.", paper.url, crawled_urls_size)
                 articles = []
