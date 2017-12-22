@@ -25,6 +25,8 @@ from .utils import (URLHelper, RawHelper, extend_config,
                     get_available_languages, extract_meta_refresh)
 from .videos.extractors import VideoExtractor
 
+from langdetect import detect
+
 log = logging.getLogger(__name__)
 
 
@@ -143,6 +145,9 @@ class Article(object):
         # A property dict for users to store custom data.
         self.additional_data = {}
 
+        # The language of the article.
+        self.language = None
+
     def build(self):
         """Build a lone article from a URL independent of the source (newspaper).
         Don't normally call this method b/c it's good to multithread articles
@@ -252,6 +257,14 @@ class Article(object):
             self.set_article_html(article_html)
             self.set_text(text)
 
+            #Try to detect the language. If it doesn't work pass
+            try:
+                language = detect(text)
+                self.set_language(language)
+                self.config.set_language(language)
+            except:
+                pass
+
         self.fetch_images()
 
         self.is_parsed = True
@@ -343,8 +356,14 @@ class Article(object):
         """
         self.throw_if_not_downloaded_verbose()
         self.throw_if_not_parsed_verbose()
-        
-        nlp.load_stopwords(self.config.get_language())
+
+        #Use the language that is set in the configuration first
+        conf_language = self.config.get_language()
+        #If there is a language detected in the article use this one
+        if self.language:
+            conf_language = self.language
+
+        nlp.load_stopwords(conf_language)
         text_keyws = list(nlp.keywords(self.text).keys())
         title_keyws = list(nlp.keywords(self.title).keys())
         keyws = list(set(title_keyws + text_keyws))
@@ -420,6 +439,10 @@ class Article(object):
         text = text[:self.config.MAX_TEXT]
         if text:
             self.text = text
+
+    def set_language(self, language):
+        if language:
+            self.language = language
 
     def set_html(self, html):
         """Encode HTML before setting it

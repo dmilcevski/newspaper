@@ -23,6 +23,7 @@ from urllib.parse import urljoin, urlparse, urlunparse
 
 from . import urls
 from .utils import StringReplacement, StringSplitter
+from pprint import pprint
 
 log = logging.getLogger(__name__)
 
@@ -188,6 +189,22 @@ class ContentExtractor(object):
                     # specifier, e.g. /2014/04/
                     return None
 
+        #TODO: Add more keys to this object.
+        PUBLISH_DATE_KEYS = [
+            'pubdate',
+            'publishdate',
+        ]
+
+        # Author Dragan Milchevski.
+        # First Check the metadata object if it contains publish date
+        for key in self.get_meta_data(doc):
+            if key in PUBLISH_DATE_KEYS:
+                date_str = self.get_meta_data(doc)[key]
+                datetime_obj = parse_date_str(date_str)
+                if datetime_obj:
+                    return datetime_obj
+
+        #
         date_match = re.search(urls.STRICT_DATE_REGEX, url)
         if date_match:
             date_str = date_match.group(0)
@@ -215,6 +232,8 @@ class ContentExtractor(object):
             {'attribute': 'name', 'value': 'PublishDate',
              'content': 'content'},
             {'attribute': 'pubdate', 'value': 'pubdate',
+             'content': 'datetime'},
+            {'attribute': 'id', 'value': 'articlePublishingDateTime',
              'content': 'datetime'},
         ]
         for known_meta_tag in PUBLISH_DATE_TAGS:

@@ -132,6 +132,10 @@ class Parser(object):
         node.append(child)
 
     @classmethod
+    def prependChild(cls, node, child):
+        node.insert(0, child)
+
+    @classmethod
     def childNodes(cls, node):
         return list(node)
 

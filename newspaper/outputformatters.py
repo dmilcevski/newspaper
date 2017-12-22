@@ -56,6 +56,9 @@ class OutputFormatter(object):
         self.replace_with_text()
         self.remove_empty_tags()
         self.remove_trailing_media_div()
+        self.remove_fewwords_paragraphs()
+        self.remove_source_brand_from_first_sentence()
+
         text = self.convert_to_text()
         # print(self.parser.nodeToString(self.get_top_node()))
         return (text, html)
@@ -165,3 +168,60 @@ class OutputFormatter(object):
         last_node = top_level_nodes[-1]
         if get_depth(last_node) >= 2:
             self.parser.remove(last_node)
+
+    def remove_fewwords_paragraphs(self):
+        """
+        Remove paragraphs that have less than x number of words,
+        would indicate that it's some sort of link.
+        """
+        all_nodes = self.parser.getElementsByTags(self.get_top_node(), ['*'])
+        all_nodes.reverse()
+        for el in all_nodes:
+            tag = self.parser.getTag(el)
+            text = self.parser.getText(el)
+            stop_words = self.stopwords_class(language=self.language). \
+                get_stopword_count(text)
+            if (tag != 'br' or text != '\\r') \
+                    and stop_words.get_stopword_count() < 3 \
+                    and len(self.parser.getElementsByTag(
+                el, tag='object')) == 0 \
+                    and len(self.parser.getElementsByTag(
+                el, tag='embed')) == 0:
+                self.parser.remove(el)
+            # TODO
+            # check if it is in the right place
+            else:
+                trimmed = self.parser.getText(el)
+                if trimmed.startswith("(") and trimmed.endswith(")"):
+                    self.parser.remove(el)
+
+    def remove_source_brand_from_first_sentence(self):
+        """
+        Remove source brand from the first sentence.
+        For example, in the sentence:
+            (CNN) By the numbers, it looks like Americans are one unhealthy nation and could therefore have a lot to lose, depending on how the health care debate concludes.
+        the word (CNN) should be removed.
+        """
+        import re
+        regex = r"(\(.*?\))"
+
+        all_nodes = self.parser.getElementsByTags(self.get_top_node(), ['*'])
+        for el in all_nodes:
+            tag = self.parser.getTag(el)
+            text = self.parser.getText(el)
+            #if(tag == 'p'):
+            matches = re.finditer(regex, text)
+            for matchNum, match in enumerate(matches):
+                # Clean the leading empty spaces or -
+                text = text[(match.end()):]
+                text = re.sub(r"^[\s-]+","",text)
+
+                #If it is, start the sentence from there, and remove everything before.
+                if text and text[0].istitle():
+                    p = self.parser.createElement(
+                        tag=tag, text=text, tail=None)
+                    parent = self.parser.getParent(el)
+                    self.parser.remove(el)
+                    self.parser.prependChild(parent, p)
+                break #stop at the first match
+            break #stop at the first element
