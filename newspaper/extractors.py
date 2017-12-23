@@ -201,9 +201,12 @@ class ContentExtractor(object):
             if key in PUBLISH_DATE_KEYS:
                 date_str = self.get_meta_data(doc)[key]
                 if date_str:
-                    datetime_obj = parse_date_str(date_str)
-                    if datetime_obj:
-                        return datetime_obj
+                    try:
+                        datetime_obj = parse_date_str(date_str)
+                        if datetime_obj:
+                            return datetime_obj
+                    except:
+                        pass
 
         #
         date_match = re.search(urls.STRICT_DATE_REGEX, url)
