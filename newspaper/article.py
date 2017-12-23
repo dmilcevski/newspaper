@@ -260,8 +260,10 @@ class Article(object):
             #Try to detect the language. If it doesn't work pass
             try:
                 language = detect(text)
-                self.set_language(language)
-                self.config.set_language(language)
+                if language and len(language) >= 2 and \
+                        language in get_available_languages():
+                    self.set_language(language)
+                    self.config.set_language(language)
             except:
                 pass
 
