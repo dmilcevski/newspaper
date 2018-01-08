@@ -179,7 +179,7 @@ class ContentExtractor(object):
         2. Pubdate from metadata
         3. Raw regex searches in the HTML + added heuristics
         """
-
+        import datetime
         def parse_date_str(date_str):
             if date_str:
                 try:
@@ -189,10 +189,28 @@ class ContentExtractor(object):
                     # specifier, e.g. /2014/04/
                     return None
 
+        def is_number(s):
+            try:
+                float(s)
+                return True
+            except ValueError:
+                pass
+
+            try:
+                import unicodedata
+                unicodedata.numeric(s)
+                return True
+            except (TypeError, ValueError):
+                pass
+
+            return False
+
         #TODO: Add more keys to this object.
         PUBLISH_DATE_KEYS = [
             'pubdate',
             'publishdate',
+            'date',
+            'last-modified',
         ]
 
         # Author Dragan Milchevski.
@@ -239,6 +257,34 @@ class ContentExtractor(object):
              'content': 'datetime'},
             {'attribute': 'id', 'value': 'articlePublishingDateTime',
              'content': 'datetime'},
+            {'attribute': 'class', 'value': 'itemDateCreated',
+             'content': 'text_content'},
+            {'attribute': 'class', 'value': 'article-date',
+             'content': 'text_content'},
+            {'attribute': 'class', 'value': 'date',
+             'content': 'text_content'},
+            {'attribute': 'class', 'value': 'timestamp__time',
+             'content': 'text_content'},
+            {'attribute': 'class', 'value': 'authors__pubdate',
+             'content': 'datetime'},
+            {'attribute': 'itemprop', 'value': 'datepublished',
+             'content': 'content'},
+            {'attribute': 'class', 'value': 'timeformat',
+             'content': 'datetime'},
+            {'attribute': 'class', 'value': 'szoPubDate',
+             'content': 'text_content'},
+            {'attribute': 'class', 'value': 'date',
+             'content': 'datetime'},
+            {'attribute': 'class', 'value': 'datetime',
+             'content': 'text_content'},
+            {'attribute': 'class', 'value': 'author__time',
+             'content': 'text_content'},
+            {'attribute': 'class', 'value': 'nfy-ar-date',
+             'content': 'datetime'},
+            {'attribute': 'class', 'value': 'dynamic_date',
+             'content': 'unix'},
+            {'attribute': 'class', 'value': 'articledate',
+             'content': 'text_content'},
         ]
         for known_meta_tag in PUBLISH_DATE_TAGS:
             meta_tags = self.parser.getElementsByTag(
@@ -246,10 +292,28 @@ class ContentExtractor(object):
                 attr=known_meta_tag['attribute'],
                 value=known_meta_tag['value'])
             if meta_tags:
-                date_str = self.parser.getAttribute(
-                    meta_tags[0],
-                    known_meta_tag['content'])
-                datetime_obj = parse_date_str(date_str)
+                meta_tag_node = meta_tags[0]
+                # Because of the fazzy matching there could be more meta tags with similar attribute value pairs.
+                # get the one with an exact match
+                for meta_tag in meta_tags:
+                    if meta_tag.attrib.get(known_meta_tag['attribute']) == known_meta_tag['value']:
+                        meta_tag_node = meta_tag
+
+                # If you want to get the text content from the node
+                if known_meta_tag['content'] == 'text_content':
+                    date_str = self.parser.getText(meta_tag_node)
+                else:
+                    # Otherwise get the attribute
+                    date_str = self.parser.getAttribute(
+                        meta_tag_node,
+                        known_meta_tag['content'])
+
+
+                if date_str and date_str.isdigit():
+                    datetime_obj = datetime.datetime.fromtimestamp(float(date_str))
+                else:
+                    datetime_obj = parse_date_str(date_str)
+
                 if datetime_obj:
                     return datetime_obj
 
