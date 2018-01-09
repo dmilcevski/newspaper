@@ -285,6 +285,18 @@ class ContentExtractor(object):
              'content': 'unix'},
             {'attribute': 'class', 'value': 'articledate',
              'content': 'text_content'},
+            {'attribute': 'class', 'value': 'date',
+             'content': 'data-date'},
+            {'attribute': 'class', 'value': 'c-publish-date',
+             'content': 'datetime'},
+            {'attribute': 'itemprop', 'value': 'date',
+             'content': 'datetime'},
+            {'attribute': 'itemprop', 'value': 'datePublished',
+             'content': 'content'},
+            {'attribute': 'class', 'value': 'articleDate',
+             'content': 'text_content'},
+            {'attribute': 'class', 'value': 'date',
+             'content': 'text_content'},
         ]
         for known_meta_tag in PUBLISH_DATE_TAGS:
             meta_tags = self.parser.getElementsByTag(
@@ -302,12 +314,12 @@ class ContentExtractor(object):
                 # If you want to get the text content from the node
                 if known_meta_tag['content'] == 'text_content':
                     date_str = self.parser.getText(meta_tag_node)
+                    #print(date_str)
                 else:
                     # Otherwise get the attribute
                     date_str = self.parser.getAttribute(
                         meta_tag_node,
                         known_meta_tag['content'])
-
 
                 if date_str and date_str.isdigit():
                     datetime_obj = datetime.datetime.fromtimestamp(float(date_str))
