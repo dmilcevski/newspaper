@@ -17,6 +17,7 @@ import re
 import re
 from collections import defaultdict
 
+import dateparser
 from dateutil.parser import parse as date_parser
 from tldextract import tldextract
 from urllib.parse import urljoin, urlparse, urlunparse
@@ -235,6 +236,8 @@ class ContentExtractor(object):
                 return datetime_obj
 
         PUBLISH_DATE_TAGS = [
+            {'attribute': 'id', 'value': 'print_date',
+             'content': 'text_content'},
             {'attribute': 'property', 'value': 'rnews:datePublished',
              'content': 'content'},
             {'attribute': 'property', 'value': 'article:published_time',
@@ -261,8 +264,6 @@ class ContentExtractor(object):
              'content': 'text_content'},
             {'attribute': 'class', 'value': 'article-date',
              'content': 'text_content'},
-            {'attribute': 'class', 'value': 'date',
-             'content': 'text_content'},
             {'attribute': 'class', 'value': 'timestamp__time',
              'content': 'text_content'},
             {'attribute': 'class', 'value': 'authors__pubdate',
@@ -281,8 +282,8 @@ class ContentExtractor(object):
              'content': 'text_content'},
             {'attribute': 'class', 'value': 'nfy-ar-date',
              'content': 'datetime'},
-            {'attribute': 'class', 'value': 'dynamic_date',
-             'content': 'unix'},
+            {'attribute': 'id', 'value': 'print_date',
+             'content': 'text_content'},
             {'attribute': 'class', 'value': 'articledate',
              'content': 'text_content'},
             {'attribute': 'class', 'value': 'date',
@@ -295,6 +296,12 @@ class ContentExtractor(object):
              'content': 'content'},
             {'attribute': 'class', 'value': 'articleDate',
              'content': 'text_content'},
+            {'attribute': 'class', 'value': 'article__header__info-area__txt',
+             'content': 'text_content'},
+            {'attribute': 'class', 'value': 'bread__meta',
+             'content': 'text_content'},
+            {'attribute': 'itemprop', 'value': 'dateCreated',
+             'content': 'content'},
             {'attribute': 'class', 'value': 'date',
              'content': 'text_content'},
         ]
