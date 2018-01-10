@@ -89,7 +89,7 @@ def crawl():
                             if (article.title, publish_date) not in crawled_articles:
                                 #If not, add it for insertion
                                 articles.append(article)
-                                crawled_articles.append(tuple((article.title, publish_date)))
+                                crawled_articles.append((article.title, publish_date))
                                 log.info("Article '%s' publish date '%s' doesn't exists.", article.title, publish_date)
                             else:
                                 log.warn("Article '%s' already exists", article.url)
