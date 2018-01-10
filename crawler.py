@@ -60,7 +60,7 @@ def crawl():
                 news_source_id = get_news_source(conn, paper.url)[0]
 
                 #Get already cralwed articles for this newspaper
-                crawled_urls = articles_exist2(conn, news_source_id)
+                crawled_urls = articles_exist(conn, paper.article_urls())
                 crawled_urls_size = 0
                 if crawled_urls:
                     crawled_urls_size = len(crawled_urls)
