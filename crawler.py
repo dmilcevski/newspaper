@@ -82,20 +82,17 @@ def crawl():
                         if article.is_valid_body():
 
                             #Check if the combination title and publish date already exists for this newspaper
-                            if(article.publish_date):
-                                if (article.title, article.publish_date.replace(tzinfo=None)) not in crawled_articles:
-                                    #If not, add it for insertion
-                                    articles.append(article)
-                                    crawled_articles.append(tuple((article.title, article.publish_date.replace(tzinfo=None))))
-                                else:
-                                    log.warn("Article '%s' already exists", article.url)
+                            publish_date = article.publish_date
+                            if publish_date:
+                                publish_date = publish_date.replace(tzinfo=None)
+
+                            if (article.title, publish_date) not in crawled_articles:
+                                #If not, add it for insertion
+                                articles.append(article)
+                                crawled_articles.append(tuple((article.title, publish_date)))
                             else:
-                                if (article.title, article.publish_date) not in crawled_articles:
-                                    #If not, add it for insertion
-                                    articles.append(article)
-                                    crawled_articles.append(tuple((article.title, article.publish_date)))
-                                else:
-                                    log.warn("Article '%s' already exists", article.url)
+                                log.warn("Article '%s' already exists", article.url)
+
                 #Insert the articles in the database
                 insert_news_articles(conn, articles, news_source_id)
 
