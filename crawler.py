@@ -87,13 +87,15 @@ def crawl():
                                     #If not, add it for insertion
                                     articles.append(article)
                                     crawled_articles.append(tuple((article.title, article.publish_date.replace(tzinfo=None))))
+                                else:
+                                    log.warn("Article '%s' already exists", article.url)
                             else:
                                 if (article.title, article.publish_date) not in crawled_articles:
                                     #If not, add it for insertion
                                     articles.append(article)
                                     crawled_articles.append(tuple((article.title, article.publish_date)))
-                            else:
-                                log.warn("Article '%s' already exists", article.url)
+                                else:
+                                    log.warn("Article '%s' already exists", article.url)
                 #Insert the articles in the database
                 insert_news_articles(conn, articles, news_source_id)
 
