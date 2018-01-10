@@ -329,7 +329,10 @@ class ContentExtractor(object):
                         known_meta_tag['content'])
 
                 if date_str and date_str.isdigit():
-                    datetime_obj = datetime.datetime.fromtimestamp(float(date_str))
+                    try:
+                        datetime_obj = datetime.datetime.fromtimestamp(float(date_str))
+                    except:
+                        pass
                 else:
                     datetime_obj = parse_date_str(date_str)
 
