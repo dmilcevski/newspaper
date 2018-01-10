@@ -28,7 +28,7 @@ def crawl():
     while True:
         count = get_news_source_count(conn)
         offset = 0
-        limit = 1
+        limit = 15
         round += 1
         log.info("Crawling round %s.", round)
         while offset <= count:
