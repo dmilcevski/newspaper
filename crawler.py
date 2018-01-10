@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/python
-from crawler.database import connect, get_news_source_count, get_news_sources, get_news_source, insert_news_article, insert_news_articles, articles_exist
+from crawler.database import connect, get_news_source_count, get_news_sources, get_news_source, insert_news_article, insert_news_articles, articles_exist, articles_exist3, articles_for_news_source
 import logging
 import time
 
@@ -28,7 +28,7 @@ def crawl():
     while True:
         count = get_news_source_count(conn)
         offset = 0
-        limit = 10
+        limit = 1
         round += 1
         log.info("Crawling round %s.", round)
         while offset <= count:
@@ -64,14 +64,30 @@ def crawl():
                 else:
                     crawled_urls = ['']
 
-                log.debug("For newspaper %s %s articles already cralwed.", paper.url, crawled_urls_size)
+                #get the source id for this nespaper
+                news_source_id = get_news_source(conn, paper.url)[0]
+
+                log.info("For newspaper %s %s articles already crawled.", paper.url, crawled_urls_size)
                 articles = []
+                crawled_articles = articles_for_news_source(conn, news_source_id)
+
                 for article in paper.articles:
-                    if article.url not in crawled_urls: #if the article is not crawled already
-                        article.parse() #parse it
-                        if article.is_valid_body(): #check if its a news article, and not some other page
-                            articles.append(article) #append for insertion
-                insert_news_articles(conn, articles, paper.url)
+                    #if the article is not crawled already
+                    if article.url not in crawled_urls:
+                        #parse it
+                        article.parse()
+                        #check if its a news article, and not some other page
+                        if article.is_valid_body():
+
+                            #Check if the combination title and publish date already exists for this newspaper
+                            if (article.title, article.publish_date) not in crawled_articles:
+                                #If not, add it for insertion
+                                articles.append(article)
+                                crawled_articles.append(tuple((article.title, article.publish_date)))
+                            else:
+                                log.warn("Article '%s' already exists", article.url)
+                #Insert the articles in the database
+                insert_news_articles(conn, articles, news_source_id)
 
         time.sleep(1000) #sleep for 1000 seconds before continuing
 
