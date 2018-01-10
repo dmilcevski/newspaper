@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/python
-from crawler.database import connect, get_news_source_count, get_news_sources, get_news_source, insert_news_article, insert_news_articles, articles_exist, articles_exist3, articles_for_news_source
+from crawler.database import connect, get_news_source_count, get_news_sources, get_news_source, insert_news_article, insert_news_articles, articles_exist, articles_exist2, articles_for_news_source
 import logging
 import time
 
@@ -56,16 +56,18 @@ def crawl():
 
             log.info("Storing downloaded articles in the database.")
             for paper in papers:
+                #get the source id for this nespaper
+                news_source_id = get_news_source(conn, paper.url)[0]
+
                 #Get already cralwed articles for this newspaper
-                crawled_urls = articles_exist(conn, paper.article_urls())
+                crawled_urls = articles_exist2(conn, news_source_id)
                 crawled_urls_size = 0
                 if crawled_urls:
                     crawled_urls_size = len(crawled_urls)
                 else:
                     crawled_urls = ['']
 
-                #get the source id for this nespaper
-                news_source_id = get_news_source(conn, paper.url)[0]
+
 
                 log.info("For newspaper %s %s articles already crawled.", paper.url, crawled_urls_size)
                 articles = []
@@ -80,10 +82,10 @@ def crawl():
                         if article.is_valid_body():
 
                             #Check if the combination title and publish date already exists for this newspaper
-                            if (article.title, article.publish_date) not in crawled_articles:
+                            if (article.title, article.publish_date.replace(tzinfo=None)) not in crawled_articles:
                                 #If not, add it for insertion
                                 articles.append(article)
-                                crawled_articles.append(tuple((article.title, article.publish_date)))
+                                crawled_articles.append(tuple((article.title, article.publish_date.replace(tzinfo=None))))
                             else:
                                 log.warn("Article '%s' already exists", article.url)
                 #Insert the articles in the database
