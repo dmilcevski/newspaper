@@ -90,11 +90,12 @@ def crawl():
                                 #If not, add it for insertion
                                 articles.append(article)
                                 crawled_articles.append(tuple((article.title, publish_date)))
+                                log.info("Article '%s' publish date '%s' doesn't exists.", article.title, publish_date)
                             else:
                                 log.warn("Article '%s' already exists", article.url)
 
                 #Insert the articles in the database
-                insert_news_articles(conn, articles, news_source_id)
+                insert_news_articles(conn, list(set(articles)), news_source_id)
 
         time.sleep(1000) #sleep for 1000 seconds before continuing
 
