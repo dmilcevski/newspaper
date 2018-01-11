@@ -78,10 +78,8 @@ def crawl():
                         article.parse()
                         #check if its a news article, and not some other page
                         if article.is_valid_body():
-                            try:
-                                insert_news_article(conn, article, news_source_id)
-                            except:
-                                pass
+                            insert_news_article(conn, article, news_source_id)
+
                             #Check if the combination title and publish date already exists for this newspaper
                             #publish_date = article.publish_date
                             #if publish_date:
