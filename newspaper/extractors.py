@@ -334,6 +334,12 @@ class ContentExtractor(object):
              'content': 'text_content'},
             {'attribute': 'class', 'value': 'publish-date',
              'content': 'text_content'},
+            {'attribute': 'itemprop', 'value': 'datePublished',
+             'content': 'text_content'},
+            {'attribute': 'class', 'value': 'post-published',
+             'content': 'datetime'},
+            {'attribute': 'class', 'value': 'article-infos-item',
+             'content': 'text_content'},
         ]
         for known_meta_tag in PUBLISH_DATE_TAGS:
             meta_tags = self.parser.getElementsByTag(
@@ -347,6 +353,8 @@ class ContentExtractor(object):
                 for meta_tag in meta_tags:
                     if meta_tag.attrib.get(known_meta_tag['attribute']) == known_meta_tag['value']:
                         meta_tag_node = meta_tag
+                        #Usually the first occurrence is the date. Break when you find it.
+                        break
 
                 # If you want to get the text content from the node
                 if known_meta_tag['content'] == 'text_content':
