@@ -70,7 +70,7 @@ def crawl():
                 log.info("For newspaper %s %s articles already crawled.", paper.url, crawled_urls_size)
                 #articles = []
                 #crawled_articles = articles_for_news_source(conn, news_source_id)
-
+                article_count = 0
                 for article in paper.articles:
                     #if the article is not crawled already
                     if article.url not in crawled_urls:
@@ -79,6 +79,7 @@ def crawl():
                             article.parse()
                             #check if its a news article, and not some other page
                             if article.is_valid_body():
+                                article_count += 1
                                 insert_news_article(conn, article, news_source_id)
                         except:
                             pass
@@ -95,7 +96,7 @@ def crawl():
                             #    log.info("Article '%s' publish date '%s' doesn't exists.", article.title, publish_date)
                             #else:
                             #    log.warn("Article '%s' already exists", article.url)
-
+                log.info("For newspaper %s stored %s articles.", paper.url, article_count)
                 #Insert the articles in the database
                 #insert_news_articles(conn, list(set(articles)), news_source_id)
 

@@ -302,7 +302,7 @@ class ContentExtractor(object):
              'content': 'content'},
             {'attribute': 'class', 'value': 'articleDate',
              'content': 'text_content'},
-            {'attribute': 'class', 'value': 'article__header__info-area__txt',
+            {'attribute': 'class', 'value': 'article__header__info-area',
              'content': 'text_content'},
             {'attribute': 'class', 'value': 'bread__meta',
              'content': 'text_content'},
@@ -329,6 +329,10 @@ class ContentExtractor(object):
             {'attribute': 'class', 'value': 'timeStamp',
              'content': 'text_content'},
             {'attribute': 'class', 'value': 'time',
+             'content': 'text_content'},
+            {'attribute': 'class', 'value': 'timeStamp',
+             'content': 'text_content'},
+            {'attribute': 'class', 'value': 'publish-date',
              'content': 'text_content'},
         ]
         for known_meta_tag in PUBLISH_DATE_TAGS:
