@@ -188,7 +188,12 @@ class ContentExtractor(object):
                 except (ValueError, OverflowError, AttributeError, TypeError):
                     # near all parse failures are due to URL dates without a day
                     # specifier, e.g. /2014/04/
-                    return None
+                    #print("Error ", error, date_str)
+                    #Try again with another parser.
+                    try:
+                        return dateparser.parse(date_str)
+                    except:
+                        return None
 
         def is_number(s):
             try:
@@ -208,6 +213,7 @@ class ContentExtractor(object):
 
         #TODO: Add more keys to this object.
         PUBLISH_DATE_KEYS = [
+            'publishtime',
             'pubdate',
             'publishdate',
             'date',
@@ -310,6 +316,20 @@ class ContentExtractor(object):
              'content': 'data-content_published_date'},
             {'attribute': 'class', 'value': 'js_publish_time',
              'content': 'title'},
+            {'attribute': 'class', 'value': 'timestamp_article',
+             'content': 'datetime'},
+            {'attribute': 'class', 'value': 'entry-meta__time',
+             'content': 'text_content'},
+            {'attribute': 'name', 'value': 'publishtime',
+             'content': 'content'},
+            {'attribute': 'property', 'value': 'DC.date.issued',
+             'content': 'content'},
+            {'attribute': 'class', 'value': 'timeStamp',
+             'content': 'datetime'},
+            {'attribute': 'class', 'value': 'timeStamp',
+             'content': 'text_content'},
+            {'attribute': 'class', 'value': 'time',
+             'content': 'text_content'},
         ]
         for known_meta_tag in PUBLISH_DATE_TAGS:
             meta_tags = self.parser.getElementsByTag(
@@ -344,6 +364,14 @@ class ContentExtractor(object):
 
                 if datetime_obj:
                     return datetime_obj
+
+        #
+        date_match = re.search(urls.DATE_REGEX, url)
+        if date_match:
+            date_str = date_match.group(0)
+            datetime_obj = parse_date_str(date_str)
+            if datetime_obj:
+                return datetime_obj
 
         return None
 
