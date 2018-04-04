@@ -1,3 +1,56 @@
+News Crawler
+============
+This project is an extension of the original project `Nespaper3k`_. The original documentation from the project is still part of this README file
+and it starts at the heading **Newspaper3k: Article scraping & curation**.
+
+This code contains extensions in the core part of the crawler, and additional classes for crawling domain specific news.
+We will not put the changes in the core part here, since they are extensions to improve the functionality.
+
+The main class for crawling news articles is located in the file ``crawler.py`` and you can run the crawler by just executing ``python3 crawler.py``.
+However, before you do that, you need to setup the database, which contain the sources for crawling, and the table where to store the crawled documents.
+
+
+Database
+--------
+Before you can use the tool, you need to create a database, to store the crawled articles. The database consists of five tables, which are used from
+different modules in the whole project. These tables are:
+- news_source
+- news_article
+- annotated_news_article
+- annotation_error
+- translation_error
+
+The first two tables are used by this project. The first table ``news_source`` contains a list of news domains with their url and the language in which
+the news articles are written. The creation script provided in this project, also populates 344 news sources used in the course of this project.
+
+The second table, ``news_article`` is used to store the crawled text from the news articles, along with some metadata about the news article.
+
+To create the database from the script provided in this project, run the following command::
+
+    $./psql -h <HOST_NAME> --port <PORT> -U <USER> -d <DATABASE_NAME> -a -f crawler/database.sql
+
+Note that you have to replace ``<HOST_NAME>``, ``<PORT>``, ``<USER>`` and ``<DATABASE_NAME>`` with values specific to your PostgreSQL server.
+
+Running the Crawler
+-------------------
+The crawler can be run as a pyton script, or you can create a docker image and let the script run in a docker environment continuously.
+To run it as a python script use the following code::
+    $ python3 crawler.py
+
+To run it as docker container, first you need to create the docker image::
+
+    $ docker build -t news-crawler:v1 .
+
+And the start the container with::
+
+    $ docker run -d --name news-crawler \
+	    -v /<LOCAL_PATH>/newspaper:/root/.newspaper_scraper \
+	    news-crawler:v1
+
+Note that you have to setup the variable ``<LOCAL_PATH>`` to a path somewhere in your hard disk, to avoid deleting cashes for already crawled news articles
+when you destroy the container.
+
+
 Newspaper3k: Article scraping & curation
 ========================================
 
@@ -345,3 +398,4 @@ to talk about the future of this library and news extraction in general!
 .. _`lxml`: http://lxml.de/
 .. _`requests`: https://github.com/kennethreitz/requests
 .. _`Parse.ly`: http://parse.ly
+.. _`Nespaper3k`: https://github.com/codelucas/newspaper
