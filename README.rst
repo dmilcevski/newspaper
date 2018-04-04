@@ -31,6 +31,10 @@ To create the database from the script provided in this project, run the followi
 
 Note that you have to replace ``<HOST_NAME>``, ``<PORT>``, ``<USER>`` and ``<DATABASE_NAME>`` with values specific to your PostgreSQL server.
 
+Configuring the database connection
+-----------------------------------
+The database connection is configured in the file ``crawler/database.ini`` by setting the ``host``, ``database``, ``username`` and ``password``.
+
 Running the Crawler
 -------------------
 The crawler can be run as a pyton script, or you can create a docker image and let the script run in a docker environment continuously.
