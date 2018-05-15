@@ -57,6 +57,7 @@ class OutputFormatter(object):
         self.remove_empty_tags()
         self.remove_trailing_media_div()
         self.remove_fewwords_paragraphs()
+        self.remove_file_photo_paragraphs()
         self.remove_source_brand_from_first_sentence()
 
         text = self.convert_to_text()
@@ -195,6 +196,33 @@ class OutputFormatter(object):
                 if trimmed.startswith("(") and trimmed.endswith(")"):
                     self.parser.remove(el)
 
+    def remove_file_photo_paragraphs(self):
+        all_nodes = self.parser.getElementsByTags(self.get_top_node(), ['*'])
+        all_nodes.reverse()
+        # First remove all nodes that have tag figcaption
+        for el in all_nodes:
+            tag = self.parser.getTag(el)
+            if(tag == 'figcaption'):
+                self.parser.remove(el)
+
+        #Then try to remove nodes that have tags with specific attibute and value
+        IMAGE_CAPTION_TAGS = [
+            {'attribute': 'class', 'value': 'imageCaption'},
+
+        ]
+
+        for known_caption_tag in IMAGE_CAPTION_TAGS:
+            caption_tags = self.parser.getElementsByTag(
+                self.get_top_node(),
+                attr=known_caption_tag['attribute'],
+                value=known_caption_tag['value'])
+            if caption_tags:
+                for caption_tag in caption_tags:
+                    if caption_tag.attrib.get(known_caption_tag['attribute']) == known_caption_tag['value']:
+                        caption_tag_node = caption_tag
+                        self.parser.remove(caption_tag_node)
+
+
     def remove_source_brand_from_first_sentence(self):
         """
         Remove source brand from the first sentence.
@@ -203,7 +231,8 @@ class OutputFormatter(object):
         the word (CNN) should be removed.
         """
         import re
-        regex = r"(\(.*?\))"
+        #regex = r"(\(.*?\))"
+        regex =  r"^([A-Za-z\.\s][A-Za-z\,\/\\\nd\s]+(\s+))?(\((.*?)\))?\s?[\–|\-|\—]*\s+"
 
         all_nodes = self.parser.getElementsByTags(self.get_top_node(), ['*'])
         for el in all_nodes:
@@ -211,6 +240,7 @@ class OutputFormatter(object):
             text = self.parser.getText(el)
             #if(tag == 'p'):
             matches = re.finditer(regex, text)
+
             for matchNum, match in enumerate(matches):
                 # Clean the leading empty spaces or -
                 text = text[(match.end()):]

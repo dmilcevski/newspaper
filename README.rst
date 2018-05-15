@@ -37,8 +37,8 @@ The database connection is configured in the file ``crawler/database.ini`` by se
 
 Running the Crawler
 -------------------
-The crawler can be run as a pyton script, or you can create a docker image and let the script run in a docker environment continuously.
-To run it as a python script use the following code::
+The crawler can be run as a Python script, or you can create a docker image and let the script run in a docker environment continuously.
+To run it as a Python script use the following code::
     $ python3 crawler.py
 
 To run it as docker container, first you need to create the docker image::
@@ -51,7 +51,7 @@ And the start the container with::
 	    -v /<LOCAL_PATH>/newspaper:/root/.newspaper_scraper \
 	    news-crawler:v1
 
-Note that you have to setup the variable ``<LOCAL_PATH>`` to a path somewhere in your hard disk, to avoid deleting cashes for already crawled news articles
+Note that you have to setup the variable ``<LOCAL_PATH>`` to a path somewhere in your hard disk, to avoid deleting caches for already crawled news articles
 when you destroy the container.
 
 
