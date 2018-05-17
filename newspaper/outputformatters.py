@@ -197,6 +197,7 @@ class OutputFormatter(object):
                     self.parser.remove(el)
 
     def remove_file_photo_paragraphs(self):
+        import re
         all_nodes = self.parser.getElementsByTags(self.get_top_node(), ['*'])
         all_nodes.reverse()
         # First remove all nodes that have tag figcaption
@@ -208,6 +209,11 @@ class OutputFormatter(object):
         #Then try to remove nodes that have tags with specific attibute and value
         IMAGE_CAPTION_TAGS = [
             {'attribute': 'class', 'value': 'imageCaption'},
+            {'attribute': 'itemprop', 'value': 'description'},
+            {'attribute': 'class', 'value': 'fqygwe-0-Paragraph-hHEPzZ'},
+            {'attribute': 'class', 'value': 'pb-caption'},
+            {'attribute': 'class', 'value': 'caption'},
+            {'attribute': 'class', 'value': 'leadimage-caption'},
 
         ]
 
@@ -215,12 +221,25 @@ class OutputFormatter(object):
             caption_tags = self.parser.getElementsByTag(
                 self.get_top_node(),
                 attr=known_caption_tag['attribute'],
-                value=known_caption_tag['value'])
+                value=known_caption_tag['value']
+            )
             if caption_tags:
                 for caption_tag in caption_tags:
-                    if caption_tag.attrib.get(known_caption_tag['attribute']) == known_caption_tag['value']:
-                        caption_tag_node = caption_tag
-                        self.parser.remove(caption_tag_node)
+                    #if caption_tag.attrib.get(known_caption_tag['attribute']) == known_caption_tag['value']:
+                    caption_tag_node = caption_tag
+                    self.parser.remove(caption_tag_node)
+
+        KNOWN_WORDS = [
+            'FILE PHOTO:',
+            'Foto:'
+        ]
+
+        for known_word in KNOWN_WORDS:
+            for el in all_nodes:
+                text = self.parser.getText(el)
+                #tag = self.parser.getTag(el)
+                if text.startswith(known_word):
+                    self.parser.remove(el)
 
 
     def remove_source_brand_from_first_sentence(self):
@@ -232,26 +251,28 @@ class OutputFormatter(object):
         """
         import re
         #regex = r"(\(.*?\))"
-        regex =  r"^([A-Za-z\.\s][A-Za-z\,\/\\\nd\s]+(\s+))?(\((.*?)\))?\s?[\–|\-|\—]*\s+"
+        regex = r"^([A-Za-z\.\\p{L}\-\s+][A-Za-z\,\/\\\nd\.\\p{L}\-\s+]+(\s+))?(\((.*?)\))?\s?[\–|\-|\—]*\s+"
+        #regex = r"^([A-Za-z\.\s+][A-Za-z\,\/\\\nd\.\s+]+(\s+))?(\((.*?)\))?\s?[\–|\-|\—]*\s+"
 
         all_nodes = self.parser.getElementsByTags(self.get_top_node(), ['*'])
         for el in all_nodes:
             tag = self.parser.getTag(el)
             text = self.parser.getText(el)
-            #if(tag == 'p'):
-            matches = re.finditer(regex, text)
+            if text:
+                #if(tag == 'p'):
+                matches = re.finditer(regex, text)
+                for matchNum, match in enumerate(matches):
 
-            for matchNum, match in enumerate(matches):
-                # Clean the leading empty spaces or -
-                text = text[(match.end()):]
-                text = re.sub(r"^[\s-]+","",text)
+                    # Clean the leading empty spaces or -
+                    text = text[(match.end()):]
+                    text = re.sub(r"^[\s-]+","",text)
 
-                #If it is, start the sentence from there, and remove everything before.
-                if text and text[0].istitle():
-                    p = self.parser.createElement(
-                        tag=tag, text=text, tail=None)
-                    parent = self.parser.getParent(el)
-                    self.parser.remove(el)
-                    self.parser.prependChild(parent, p)
-                break #stop at the first match
-            break #stop at the first element
+                    #If it is, start the sentence from there, and remove everything before.
+                    if text and text[0].istitle():
+                        p = self.parser.createElement(
+                            tag=tag, text=text, tail=None)
+                        parent = self.parser.getParent(el)
+                        self.parser.remove(el)
+                        self.parser.prependChild(parent, p)
+                    break #stop at the first match
+                break #stop at the first element
