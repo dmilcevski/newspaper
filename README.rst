@@ -4,11 +4,9 @@ This project is an extension of the original project `Nespaper3k`_. The original
 and it starts at the heading **Newspaper3k: Article scraping & curation**.
 
 This code contains extensions in the core part of the crawler, and additional classes for crawling domain specific news.
-We will not put the changes in the core part here, since they are extensions to improve the functionality.
 
 The main class for crawling news articles is located in the file ``crawler.py`` and you can run the crawler by just executing ``python3 crawler.py``.
 However, before you do that, you need to setup the database, which contain the sources for crawling, and the table where to store the crawled documents.
-
 
 Database
 --------
@@ -21,7 +19,7 @@ different modules in the whole project. These tables are:
 - translation_error
 
 The first two tables are used by this project. The first table ``news_source`` contains a list of news domains with their url and the language in which
-the news articles are written. The creation script provided in this project, also populates 344 news sources used in the course of this project.
+the news articles are written.
 
 The second table, ``news_article`` is used to store the crawled text from the news articles, along with some metadata about the news article.
 
