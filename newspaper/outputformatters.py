@@ -45,6 +45,7 @@ class OutputFormatter(object):
         self.top_node = top_node
         html, text = '', ''
 
+
         self.remove_negativescores_nodes()
 
         if self.config.keep_article_html:
@@ -213,8 +214,9 @@ class OutputFormatter(object):
             {'attribute': 'class', 'value': 'fqygwe-0-Paragraph-hHEPzZ'},
             {'attribute': 'class', 'value': 'pb-caption'},
             {'attribute': 'class', 'value': 'caption'},
+            {'attribute': 'class', 'value': 'text-caption'},
             {'attribute': 'class', 'value': 'leadimage-caption'},
-
+            {'attribute': 'class', 'value': 'image-credit-wrap'},
         ]
 
         for known_caption_tag in IMAGE_CAPTION_TAGS:
@@ -223,6 +225,7 @@ class OutputFormatter(object):
                 attr=known_caption_tag['attribute'],
                 value=known_caption_tag['value']
             )
+
             if caption_tags:
                 for caption_tag in caption_tags:
                     #if caption_tag.attrib.get(known_caption_tag['attribute']) == known_caption_tag['value']:
@@ -251,7 +254,8 @@ class OutputFormatter(object):
         """
         import re
         #regex = r"(\(.*?\))"
-        regex = r"^([A-Za-z\.\\p{L}\-\s+][A-Za-z\,\/\\\nd\.\\p{L}\-\s+]+(\s+))?(\((.*?)\))?\s?[\–|\-|\—]*\s+"
+        regex = r"^([A-Za-z0-9\.\\p{L}\-\s+][A-Za-z0-9\,\/\\\nd\.\\p{L}\-\s+]+(\s+))?(\((.*?)\))?\s?[\–|\-|\—]*\s+"
+
         #regex = r"^([A-Za-z\.\s+][A-Za-z\,\/\\\nd\.\s+]+(\s+))?(\((.*?)\))?\s?[\–|\-|\—]*\s+"
 
         all_nodes = self.parser.getElementsByTags(self.get_top_node(), ['*'])
@@ -262,7 +266,6 @@ class OutputFormatter(object):
                 #if(tag == 'p'):
                 matches = re.finditer(regex, text)
                 for matchNum, match in enumerate(matches):
-
                     # Clean the leading empty spaces or -
                     text = text[(match.end()):]
                     text = re.sub(r"^[\s-]+","",text)
